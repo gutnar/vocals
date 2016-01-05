@@ -83,6 +83,7 @@ app.controller('SetupCtrl', function (media, $scope, $location) {
 app.controller('RecordCtrl', function (media, $scope, $location, $interval, $timeout) {
     // Vocals
     $scope.vocals = [
+        {name: 'müra'},
         {name: 'A'},
         {name: 'E'},
         {name: 'I'},
@@ -107,8 +108,19 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
 
         analyser.getByteFrequencyData(freqByteData);
 
+        // Normalize
+        var i, max = Math.max.apply(null, freqByteData);
+
+        console.log(max, freqByteData);
+
+        for (i = 0; i < freqByteData.length; ++i) {
+            freqByteData[i] = freqByteData[i] / max * 255;
+        }
+
+        console.log(max, freqByteData);
+
         // Compare
-        var i, j, vocal, log = '', best;
+        var j, vocal, log = '', best;
 
         for (i = 0; i < $scope.vocals.length; ++i) {
             vocal = $scope.vocals[i];
@@ -149,7 +161,7 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
             // gotta sum/average the block, or we miss narrow-bandwidth spikes
             for (j = 0; j< multiplier; j++)
                 magnitude += freqByteData[offset + j];
-            magnitude = magnitude / multiplier;
+            magnitude = magnitude / multiplier * canvasHeight / 255;
             var magnitude2 = freqByteData[i * multiplier];
             analyserContext.fillStyle = "hsl( " + Math.round((i*360)/numBars) + ", 100%, 50%)";
             analyserContext.fillRect(i * SPACING, canvasHeight, BAR_WIDTH, -magnitude);
