@@ -104,6 +104,7 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
         var SPACING = 3;
         var BAR_WIDTH = 1;
         var numBars = Math.round(canvasWidth / SPACING);
+
         var freqByteData = new Uint8Array(analyser.frequencyBinCount);
 
         analyser.getByteFrequencyData(freqByteData);
@@ -111,13 +112,27 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
         // Normalize
         var i, max = Math.max.apply(null, freqByteData);
 
-        console.log(max, freqByteData);
-
         for (i = 0; i < freqByteData.length; ++i) {
             freqByteData[i] = freqByteData[i] / max * 255;
         }
 
-        console.log(max, freqByteData);
+        // Average value
+        var mean = 0;
+
+        for (i = 0; i < freqByteData.length; i++) {
+            mean += freqByteData[i];
+        }
+
+        mean /= i;
+
+        // Standard deviation
+        var variance = 0;
+
+        for (i = 0; i < freqByteData.length; i++) {
+            variance += Math.pow(freqByteData[i] - mean, 2);
+        }
+
+        variance /= i;
 
         // Compare
         var j, vocal, log = '', best;
@@ -127,17 +142,35 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
             vocal.active = false;
 
             if (vocal.data) {
+                /*
+                vocal.correlation = 0;
+                for (j = 0; j < vocal.data.length; j++){
+                    vocal.correlation += (vocal.data[j] - vocal.mean)*(freqByteData[j]-mean);
+                }
+                vocal.correlation /= vocal.variance*variance*j;
+                vocal.correlation = Math.round(vocal.correlation*100);
+                */
+
                 vocal.error = 0;
 
                 for (j = 0; j < freqByteData.length; ++j) {
                     vocal.error += Math.pow(freqByteData[j] - vocal.data[j], 2);
                 }
 
-                log += vocal.name + ' (' + vocal.error + '), ';
+                //vocal.error = Math.round(vocal.error/(256*256*freqByteData.length)*100);
+
+                log += vocal.name + ' (' + vocal.correlation + '), ';
 
                 if (!best || vocal.error < best.error) {
                     best = vocal;
                 }
+            }
+        }
+
+        for (i = 0; i < $scope.vocals.length; ++i) {
+            vocal = $scope.vocals[i];
+            if (best && best.error && vocal.error) {
+                vocal.match = Math.round(best.error / vocal.error * 100);
             }
         }
 
@@ -189,6 +222,12 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
         // Index of vocal currently being recorded
         $scope.recordingIndex = -1;
 
+        $interval(function () {
+            for (var i = 0; i < $scope.vocals.length; ++i) {
+                $scope.vocals[i].showError = $scope.vocals[i].error;
+            }
+        }, 250);
+
         // Start recording vocals
         $interval(function () {
             // Get vocal to record
@@ -198,6 +237,24 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
             if (vocal) {
                 $timeout(function () {
                     vocal.data = updateAnalysers('vocal-' + vocal.name, false);
+
+                    // Average value
+                    vocal.mean = 0;
+
+                    for (var i = 0; i < vocal.data.length; i++) {
+                        vocal.mean += vocal.data[i];
+                    }
+
+                    vocal.mean /= i;
+
+                    // Standard deviation
+                    vocal.variance = 0;
+
+                    for (var j = 0; j < vocal.data.length; j++) {
+                        vocal.variance += Math.pow(vocal.data[j] - vocal.mean, 2);
+                    }
+
+                    vocal.variance /= j;
                 }, 1000);
             }
         }, 2000, $scope.vocals.length + 1);

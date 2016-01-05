@@ -1,8 +1,70 @@
 .card {
 }
 
+.card-vocal {
+    float: left;
+    margin-top: 15px;
+    margin-right: 5px;
+}
+
 .card-vocal h1 {
     text-align: center;
+}
+
+.bar {
+    position: relative;
+    display: block;
+    float: left;
+    width: 10%;
+    height: 15px;
+}
+
+.bar .bar-inner {
+    position: absolute;
+    top: 1px;
+    bottom: 1px;
+    right: 1px;
+    left: 1px;
+}
+
+.bar .bar-inner.bar-1 {
+    background: #ff484d;
+}
+
+.bar .bar-inner.bar-2 {
+    background: #ffa16e;
+}
+
+.bar .bar-inner.bar-3 {
+    background: #ffd96b;
+}
+
+.bar .bar-inner.bar-4 {
+    background: #f5ff6a;
+}
+
+.bar .bar-inner.bar-5 {
+    background: #c8ff64;
+}
+
+.bar .bar-inner.bar-6 {
+    background: #8bff56;
+}
+
+.bar .bar-inner.bar-7 {
+    background: #56ff89;
+}
+
+.bar .bar-inner.bar-8 {
+    background: #42ffd8;
+}
+
+.bar .bar-inner.bar-9 {
+    background: #3fdcff;
+}
+
+.bar .bar-inner.bar-10 {
+    background: #397aff;
 }
 
 .card-fft {
