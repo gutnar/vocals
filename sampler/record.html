@@ -1,24 +1,37 @@
-<div class="row">
-    <div class="col-xs-12">
-        <div class="card-deck-wrapper">
-            <div class="card-deck">
-                <div class="card card-vocal"
-                     ng-class="{'card-primary': $index === recordingIndex, 'card-inverse': $index === recordingIndex || vocal.active, 'card-success': vocal.active}"
-                     ng-repeat="vocal in vocals">
-                    <h1 class="card-title">{{ vocal.name }}</h1>
-                    <ul class="list-group list-group-flush" ng-hide="true">
-                        <li class="list-group-item">Kuula</li>
-                        <li class="list-group-item">Salvesta uuesti</li>
-                    </ul>
-                </div>
-            </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-12">
+                    <div class="card card-vocal" style="width: {{ (100-10)/vocals.length }}%;"
+                         ng-class="{'card-primary': $index === recordingIndex, 'card-inverse': $index === recordingIndex || vocal.active, 'card-success': vocal.active}"
+                         ng-repeat="vocal in vocals">
+                        <h1 class="card-title">{{ vocal.name }}</h1>
+                        <ul class="list-group list-group-flush" >
+                            <li class="list-group-item" style="height: 40px;">
+                                <span ng-show="vocal.match > 37" class="bar"><span class="bar-inner bar-1"></span></span>
+                                <span ng-show="vocal.match > 60" class="bar"><span class="bar-inner bar-2"></span></span>
+                                <span ng-show="vocal.match > 75" class="bar"><span class="bar-inner bar-3"></span></span>
+                                <span ng-show="vocal.match > 84" class="bar"><span class="bar-inner bar-4"></span></span>
+                                <span ng-show="vocal.match > 90" class="bar"><span class="bar-inner bar-5"></span></span>
+                                <span ng-show="vocal.match > 94" class="bar"><span class="bar-inner bar-6"></span></span>
+                                <span ng-show="vocal.match > 96" class="bar"><span class="bar-inner bar-7"></span></span>
+                                <span ng-show="vocal.match > 97" class="bar"><span class="bar-inner bar-8"></span></span>
+                                <span ng-show="vocal.match > 98" class="bar"><span class="bar-inner bar-9"></span></span>
+                                <span ng-show="vocal.match > 99" class="bar"><span class="bar-inner bar-10"></span></span>
+                                <div style="clear: both;"></div>
+                            </li>
+                        </ul>
+                    </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-xs-12">
-        <canvas id="analyser"></canvas>
-        <canvas id="vocal-{{ vocal.name }}" ng-repeat="vocal in vocals"></canvas>
+    <div class="row">
+        <div class="card-fft">
+            <small class="vocal">signaal</small>
+            <canvas class="fft" id="analyser"></canvas>
+        </div>
+        <div class="card-fft" ng-repeat="vocal in vocals">
+            <small class="vocal">{{ vocal.name }}</small>
+            <canvas id="vocal-{{ vocal.name }}"></canvas>
+        </div>
     </div>
 </div>
