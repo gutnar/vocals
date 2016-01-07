@@ -94,7 +94,7 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
     ];
 
     // Analyser
-    var analyser;
+    var analyser, time;
 
     function updateAnalysers(canvasId, loop, normalize) {
         var i;
@@ -114,26 +114,16 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
             }
         }
 
-
         // Normalize
         var max = Math.max.apply(null, fft);
 
         if (normalize) {
             for (i = 0; i < fft.length; ++i) {
                 fft[i] = fft[i] / max * 255;
-
-                /*
-                 if ($scope.vocals[0].data) {
-                 if ($scope.vocals[0].data > fft[i]) {
-                 fft[i] = 0;
-                 } else {
-                 fft[i] -= $scope.vocals[0].data[i];
-                 }
-                 }
-                 */
             }
         }
 
+        /*
         // Average value
         var mean = 0;
 
@@ -151,6 +141,7 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
         }
 
         variance /= i;
+        */
 
         // Compare
         var j, vocal, log = '', best;
@@ -209,6 +200,7 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
         ctx.lineCap = 'round';
 
         // Draw fft
+        var mean;
         var bars = Math.floor(canvas.width/4);
         var inBars = Math.floor(fft.length/bars);
 
@@ -221,25 +213,9 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
 
             mean /= inBars;
 
+            ctx.fillStyle = 'hsl(' + Math.round((i*360)/bars) + ', 100%, 50%)';
             ctx.fillRect(i*(canvas.width/bars-1+1), canvas.height, canvas.width/bars-1, -mean/255*canvas.height);
         }
-
-        /*
-        var multiplier = analyser.frequencyBinCount / numBars;
-
-        // Draw rectangle for each frequency bin.
-        for (i = 0; i < numBars; ++i) {
-            var magnitude = 0;
-            var offset = Math.floor( i * multiplier );
-            // gotta sum/average the block, or we miss narrow-bandwidth spikes
-            for (j = 0; j< multiplier; j++)
-                magnitude += freqByteData[offset + j];
-            magnitude = magnitude / multiplier * canvasHeight / 255;
-            var magnitude2 = freqByteData[i * multiplier];
-            analyserContext.fillStyle = "hsl( " + Math.round((i*360)/numBars) + ", 100%, 50%)";
-            analyserContext.fillRect(i * SPACING, canvasHeight, BAR_WIDTH, -magnitude);
-        }
-        */
 
         if (loop !== false) {
             window.requestAnimationFrame(updateAnalysers.bind(this, canvasId));
@@ -256,7 +232,12 @@ app.controller('RecordCtrl', function (media, $scope, $location, $interval, $tim
         // Analyser
         analyser = media.audioCtx.createAnalyser();
         analyser.fftsize = 2048;
+        //analyser.smoothingTimeConstant = 0.95;
         source.connect(analyser);
+
+        console.log('fftsize', analyser.fftsize);
+        console.log('frequencyBinCount', analyser.frequencyBinCount);
+        console.log('volume', analyser.minDecibels, 'to', analyser.maxDecibels, 'dBFS');
 
         updateAnalysers('analyser');
 

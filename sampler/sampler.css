@@ -86,4 +86,5 @@
 
 .card-fft canvas {
     display: block;
+    width: 330px;
 }
